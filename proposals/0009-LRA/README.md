@@ -208,6 +208,7 @@ coordinator when the activity terminates:
   in which case it will be periodically retried (out of order).
 
 Participants follow a state model:
+![participant-state-model](./lra-state-model.png)
 <a name="participant-state-model"></a>
 
    - `Compensating`: a participant is currently compensating for the work
@@ -479,9 +480,10 @@ it will never be able to complete.
 
 If the bean cannot perform a compensation or completion activity immediately the
 termination method MUST indicate the condition. In this case the LRA coordinator
-will need to monitor the progress of the participant and the developer must
+will need to monitor the progress of the participant and the developer should either
 provide a `@GET` method annotated with `@Status` which must return a string representation
-[string representation of the status](#participant-state-model) of the status.
+[string representation of the status](#participant-state-model) of the status
+or expect the compensator to be called again (ie the method must be idempotent).
 The bean indicates that it cannot finish immediately by either
 
    - returning a `202 Accepted` HTTP status  code or
@@ -997,6 +999,12 @@ under the parent LRA which means that closing/cancelling the parent
 will automatically close/cancel the nested LRA. Closing a nested LRA
 is provisional on the parent closing, ie if the parent is cancelled so
 too with the nested LRA (even if it has been previously closed).
+
+"The client MAY register a participant when starting a new LRA
+[in the standard way](#participant-registration), ie by providing
+participant URLs in the body of the request or in a link header.
+Typically a client would make use of this feature if it needs to be
+notified that an LRA is terminating or for performance reasons."
 
 The following requests can be made on the LRA URL.
 
